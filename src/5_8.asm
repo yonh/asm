@@ -1,4 +1,4 @@
-;;; 将内存ffff:0~ffff:b的值复制到内存0200:0~0200:b
+﻿;;; 将内存ffff:0~ffff:b的值复制到内存0200:0~0200:b
 
 assume cs:code
 code segment

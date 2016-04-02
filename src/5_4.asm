@@ -1,16 +1,16 @@
-;;; Ê¹ÓÃloop¼ÆËã(ffff:0006)*123,½á¹û±£´æÔÚdxÖÐ
+ï»¿;;; ä½¿ç”¨loopè®¡ç®—(ffff:0006)*123,ç»“æžœä¿å­˜åœ¨dxä¸­
 
 assume cs:code
 code segment
-	mov ax, 0ffffh	; ÔÚ»ã±àÖÐ³ÌÐòÖÐ,Êý¾Ý²»ÄÜÒÔ×ÖÄ¸¿ªÍ·ËùÒÔ²¹0
+	mov ax, 0ffffh	; åœ¨æ±‡ç¼–ä¸­ç¨‹åºä¸­,æ•°æ®ä¸èƒ½ä»¥å­—æ¯å¼€å¤´æ‰€ä»¥è¡¥0
 	mov ds, ax
 	mov bx, 6
 	
-	mov al, [bx]	; al = ds:bxµÄÖµ
+	mov al, [bx]	; al = ds:bxçš„å€¼
 	mov ah, 0
 
 	mov dx, 0
-	mov cx, 123		; Ñ­»·123´Î
+	mov cx, 123		; å¾ªçŽ¯123æ¬¡
 
 	s: add dx, ax
 	loop s

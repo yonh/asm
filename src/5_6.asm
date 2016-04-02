@@ -1,4 +1,4 @@
-;;; 计算ffff:0~ffff:f单元中的和，结果保存到dx中
+﻿;;; 计算ffff:0~ffff:f单元中的和，结果保存到dx中
 
 assume cs:code
 code segment
