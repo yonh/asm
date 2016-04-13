@@ -43,8 +43,8 @@ mov byte ptr ds:[0], 1
 
 
 ### div
-```
-# div reg / div [...]
+```asm
+; div reg / div [...]
 div ax
 div byte ptr ds:[0]
 ```
@@ -70,7 +70,7 @@ div是一个除法指令，除法指令执行我们需要知道的信息有
 除数为8位: 8_div_8.asm
 除数为16位: 8_div_16.asm
 
-```
+```asm
 div byte ptr [0]
 (al) = (ax) / ((ds)*16 + 0)的商
 (ah) = (ax) / ((ds)*16 + 0)的余数
@@ -87,7 +87,7 @@ dd: 定义双字数据, 每个占四个字节
 
 ### dup
 配合db,dw,dd使用,定义连续n个相同的数据
-```	
+```asm
 db 重复次数 dup (重复的字节型数据)
 dw 重复次数 dup (重复的字型数据)
 dd 重复次数 dup (重复的双字型数据)
@@ -121,7 +121,7 @@ dd 重复次数 dup (重复的双字型数据)
 
 ### offset
 offset的作用是获取标号的偏移地址  
-```
+```asm
 start: mov ax, offset s ; 获取标号s的偏移地址,送入ax
 end: mov ax, offset end ; 获取标号end的偏移地址,送入ax
 ```
@@ -138,7 +138,7 @@ end: mov ax, offset end ; 获取标号end的偏移地址,送入ax
 位移 = 标号位置 - jmp指令的下一条指令的位置
 
 
-```
+```asm
 ; 几条转移指令
 jmp 标号
 jmp short 标号 		; 8位位移 (范围-128~127)
