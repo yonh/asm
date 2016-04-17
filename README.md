@@ -162,6 +162,76 @@ jcxz 标号 			; jmp if cx is zero的缩写(我猜),用C表示就是 if (0==cx) 
 | 7 | 6  5  4 | 3 | 2  1  0 |
 
 
+
+# 第10章
+## 本章总结
+* ret  =>  pop ip
+* retf =>  pop ip, pop cs
+* call不能实现短转移
+* 子程序中使用了寄存器,可能主程序也使用了,从而造成寄存器冲突
+## ret和retf
+ret指令利用栈实现修改IP的值，从而实现近转移  
+retf利用栈实现修改CS和IP的值，从而实现远转移  
+```asm
+; 执行ret的时候
+(ip) = ((ss)*16+ (sp))
+(sp) = (sp)+2
+; 相当于汇编指令
+pop ip
+
+
+; 执行retf的时候
+(ip) = ((ss)*16 + (sp))
+(sp) = (sp)+2
+(cs) = ((ss)*16 + (sp))
+(sp) = (sp)+2
+; 相当于汇编指令
+pop ip
+pop cs 
+```
+
+## call
+执行call会将下一条指令的IP或CS:IP入栈,然后跳转  
+需要关注call后的参数,会导致IP或CS:IP入栈
+
+### 几种调用call的例子
+* call 标号
+* callfar ptr 标号
+* call 16位寄存器
+* call word ptr 内存单元地址
+* call dword ptr 内存单元地址
+
+### call指令执行段内转移过程
+1. 将call指令的下一条指令压栈
+2. 程序跳转到标号处执行
+用汇编解释  
+push ip  
+jmp near ptr 标号  
+
+### call指令执行段间转移过程
+1. 将call指令的下一条指令的CS压栈
+2. 将call指令的下一条指令的IP压栈
+3. 跳转到标号处执行
+用汇编解释  
+push cs  
+push ip  
+jmp far ptr 标号  
+
+# mul乘法指令
+和除法指令相同,乘法指令需要用到ax和dx,同时2个数需要同时是8位或16位  
+若是8位,则一个数存放在al,另一个数存放在8位寄存器或内存单元中, 结果存于ax  
+若是16位,则一个数存放在ax,另一个数存放在16位寄存器或内存单元中,结果存于ax(低位)和dx(高位)中  
+```asm
+; 格式如下
+; mul 寄存器
+; mul 内存单元
+
+mul byte ptr ds:[0]
+mul word ptr ds:[0]
+mul bl
+mul bx
+```
+
 # 关于寄存器的大小问题
 一个寄存器通常是16位,如: al(8),ah(8) => ax(16)  
 al, ah的存值范围 0-255	=> 1个字节	=> 8个二进制数  
