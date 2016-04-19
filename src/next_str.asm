@@ -1,9 +1,9 @@
-;;; 实现反转字符串
+;;; 实现ds:si指向下一个字符串的首地址
 
 assume cs:code
 
 data segment
-	db '12345678',0
+	db 'abcde',0,'efghij',0,'heil',0
 data ends
 
 code segment
