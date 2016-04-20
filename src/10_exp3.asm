@@ -164,11 +164,19 @@ rev_str_end:
 
 ; =================================================================
 ; 子程序功能: 将ds:si指向下一条字符串的首地址,判断字符串是否结束判断字符是否为0
-; 参数 ds:si字符串地址
-; return ds:si指向下一条字符串首地址
+; 参数: ds:si指向字符串首地址,0为字符串结束标志
 next_str:
-	
+	push cx
+	mov cx, 0
+next_str_main:
+	mov cl, ds:[si]
+	inc si
+	jcxz next_str_end
+	jmp next_str_main
+next_str_end:
+	pop cx
 	ret
+
 	
 code ends
 end start

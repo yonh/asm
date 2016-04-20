@@ -12,52 +12,27 @@ start:
 	mov ds, ax
 	mov si, 0
 	
-	call rev_str
-
+	call next_str
+	call next_str
+	call next_str
+	
 	mov ax, 4c00h
 	int 21h
 
-; 子程序功能: 反转字符串
-; 参数: ds:si指向字符串首地址,0为结束
-rev_str:
-	push si
-	push ax
-	push bx
+; =================================================================
+; 子程序功能: 将ds:si指向下一条字符串的首地址,判断字符串是否结束判断字符是否为0
+; 参数: ds:si指向字符串首地址,0为字符串结束标志
+next_str:
 	push cx
-	
 	mov cx, 0
-	mov bx, 0	;记录字符串长度
-rev_str_start:
-	; 计算字符串长度,保存在bx
+next_str_main:
 	mov cl, ds:[si]
-	jcxz cal_loop_len
-	inc bx
 	inc si
-	jmp rev_str_start
-	
-cal_loop_len:
-	;计算循环次数
-	dec si
-	mov ax, bx
-	mov bx, 2
-	div bx
-	mov cx, ax
-	mov bx, 0
-rev_str_main:
-	mov al, ds:[bx]
-	mov ah, ds:[si]
-	mov byte ptr ds:[si], al
-	mov byte ptr ds:[bx], ah
-	inc bx
-	dec si
-	loop rev_str_main
-rev_str_end:
+	jcxz next_str_end
+	jmp next_str_main
+next_str_end:
 	pop cx
-	pop bx
-	pop ax
-	pop si
 	ret
 
 code ends
-
 end start
