@@ -18,7 +18,7 @@ start:
 	
 	mov dh, 0
 	mov dl, 0
-	mov cl, 2
+	mov cl, 1
 	
 	mov cx, 8
 	mov di, 0
@@ -27,6 +27,14 @@ s:
 	mov ax, ds:[di]
 	call dtoc			; 将数字转换为字符串,保存到ds:[si]
 	call rev_str		; 反转字符串
+	
+	; 打印字符串
+	push cx				; 因为与外层cx冲突,所以临时存入栈,待调用子程序后返回,当然,不做处理的话会得到不同颜色的值,也无所谓
+	mov cl, 0fh
+	call show_str
+	pop cx
+	inc dh				; 行号++
+	
 	call next_str		; ds:[si]指向下一条字符串
 	add di, 2
 	loop s
@@ -34,7 +42,7 @@ s:
 	;; note 这里还要做的是将rev_str和dtoc的si 保留结果,而不是直接修改,让next_str来修改si的地址
 	
 	
-	call show_str		; 打印字符串
+	; call show_str		; 打印字符串
 
 sloop:
 	mov ax, 0
