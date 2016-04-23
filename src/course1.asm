@@ -27,18 +27,6 @@ table ends
 
 code segment
 start:
-	mov ax, data	; 从哪读取数据
-	mov ds, ax
-	
-	mov ax, table	; 数据放到哪去
-	mov es, ax
-	
-	mov cx, 21
-	mov si, 0		; 保存当前年份的索引,用来索引该年相应的数据
-	mov di, 0		; 保存每次循环当年记录的偏移地址的基址,通过es:[si+idata]定位不同数据的位置,每次循环si+=16,指向下一年的数据段开始的位置
-	mov bx, 0		; 记录每次当年的职员数量的偏移位置
-	
-
 	call write_years	; 年
 	call write_income	; 收入
 	call write_count	; 雇员数
