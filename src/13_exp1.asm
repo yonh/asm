@@ -11,23 +11,38 @@ data ends
 code segment
 start:
 	; 安装中断例程
-	cld
-	rep movsb
-	
-	; 设置中断向量
-	mov word ptr es:[7ch*4], 200h
-	mov word ptr es:[7ch*4+2], 0
+	call install
 	
 	mov ax, data
 	mov ds, ax
 	mov si, 0
 	mov dh, 1
 	mov dl, 1
-	call show_str
+	mov cl, 43
+	int 7ch
 	
 	s:nop
 	jmp s
 
+;====================================================
+;;; 安装中断例程 7ch
+install:
+	;ds:si=>es:di
+	mov ax, cs
+	mov ds, ax
+	mov si, offset show_str
+	mov ax, 0
+	mov es, ax
+	mov di, 200h
+	mov cx, offset show_str_end - offset show_str
+	cld
+	rep movsb
+	
+	; 设置中断向量
+	mov word ptr es:[7ch*4], 200h
+	mov word ptr es:[7ch*4+2], 0
+	ret
+	
 ;====================================================
 ;;; 中断例程
 ;;; 输出一个以0结束的字符串,中断例程安装在0:200处
@@ -45,20 +60,21 @@ show_str:
 	add ax, dx
 	add ax, dx
 	mov di, ax
-	
+	mov ah, cl
 show_str_start:
-	cmp word ptr ds:[si], 0
-	je show_str_end
-	
+	cmp byte ptr ds:[si], 0
+	je show_str_ret
 	
 	mov al, ds:[si]
 	mov es:[di], al
+	mov es:[di+1], ah
 	inc si
 	add di, 2
 	jmp show_str_start
+show_str_ret:
+	iret
 show_str_end:
 	nop
-	ret
 code ends
 
 end start
