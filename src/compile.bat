@@ -1,9 +1,6 @@
-:masm 5_9.asm;
-:link 5_9.obj;
-
-
-:masm 5_exp_1.asm;
-:link 5_exp_1.obj;
+: 删除原来程序,防止有时候编译不通过也不知道
+del %1%.exe;
+del %1%.obj;
 
 
 masm %1%;
