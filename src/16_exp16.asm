@@ -46,7 +46,7 @@ start:
 
 setscreen:
 	jmp set
-	table 	dw offset sub0-setscreen+200h
+	table 	dw offset sub0-offset setscreen+200h
 			dw offset sub1-offset setscreen+200h
 			dw offset sub2-offset setscreen+200h
 			dw offset sub3-offset setscreen+200h		; 将子程序存储在一个表中,通过偏移量获取子程序地址
