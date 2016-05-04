@@ -278,7 +278,7 @@ df是方向标志位,可在串处理指令中操作di,si的增减
 ; 相关指令参考
 cld			; df=0,正向传送
 std			; df=1,逆向传送
-rep movsb	;每次传送byte, di,si步长=1, 用汇编描述就是 => 1.mov di:[si], byte ptr di:[di] 2. inc si    3. inc di   
+rep movsb	;每次传送byte, di,si步长=1, 用汇编描述就是 => 1.mov ds:[si], byte ptr es:[di] 2. inc si    3. inc di   
 ; rep movsb等价于 (描述用语)
 s:
 	mov [si], byte ptr [di]
@@ -286,7 +286,7 @@ s:
 	inc si
 loop s
 
-rep movsw	;每次传送word, di,si步长=2, 用汇编描述就是 => 1.mov di:[si], byte ptr di:[di] 2. add si,2  3. add di,2   
+rep movsw	;每次传送word, di,si步长=2, 用汇编描述就是 => 1.mov ds:[si], byte ptr es:[di] 2. add si,2  3. add di,2   
 ; rep movsw等价于 (描述用语)
 s:
 	mov [si], word ptr [di]
@@ -531,6 +531,10 @@ start:
 code ends
 end start
 ```
+
+# 17章
+## 键盘缓冲区
+
 
 # 关于寄存器的大小问题
 一个寄存器通常是16位,如: al(8),ah(8) => ax(16)  
