@@ -7,7 +7,6 @@ assume cs:code
 
 code segment
 start:
-
 	call copy_boot
 	mov bx, 0
 	push bx			;push cs
@@ -59,10 +58,10 @@ boot_option:
 				 dw  option_4 -  boot+200h
 	current 	 db 0						; 当前选项
 boot_start:
-	
 	call show_option
-	s:nop
-	jmp s
+	call press_key
+	;s:nop
+	jmp boot_start
 	
 	ret
 
@@ -126,7 +125,147 @@ show_option_ret:
 	pop ax
 	ret
 
+;==========================================================
+; 接受键盘事件
+
+press_key:
+	push ax
+	push bx
+	push es
+	
+	; 获取选项
+	mov bx, offset current-boot+200h
+	
+	mov ah, 0
+	int 16h
+	; 如果按上选项-1,按下选项+1
+	cmp ah, 48h
+	je is_up
+	cmp ah, 50h
+	je is_down
+	cmp ah, 1
+	je is_esc	; esc退出程序
+	cmp ah, 1ch
+	je is_enter
+	jmp press_key_ret
+
+is_esc:
+	mov ax, 4c00h
+	int 21h
+is_enter:
+	cmp byte ptr cs:[bx], 0
+	je reboot
+	cmp byte ptr cs:[bx], 1
+	je start_system
+	cmp byte ptr cs:[bx], 2
+	je clock
+	cmp byte ptr cs:[bx], 3
+	je set_clock
+	
+	jmp press_key_ret
+	
+is_up:
+	
+	cmp byte ptr cs:[bx], 0		; 等于0的时候不操作
+	je press_key_ret
+	dec byte ptr cs:[bx]
+	jmp press_key_ret
+is_down:
+	
+	cmp byte ptr cs:[bx], 3		; 大于等于3 的时候不操作
+	jnb press_key_ret
+	inc byte ptr cs:[bx]
+	jmp press_key_ret
+
+press_key_ret:
+	;显示当前选项
+	mov ax, 0b800h
+	mov es, ax
+	
+	mov al, cs:[bx]
+	
+	mov bx, 160
+	mov es:[bx], al
+	
+	pop es
+	pop bx
+	pop ax
+	ret
+
+	
+;=================================
+reboot:
+	
+start_system:
+
+clock:
+	
+
+	; 清屏
+	mov ax, 3
+	int 10H
+	
+	call show_clock
+	
+
+
+	
+set_clock:
+
+;;; 将cmos获取到的数据转为ascii码
+;;; 参数: al,读取数据的单元地址
+;;; 返回al,读取到的数据
+get_ascii_in_cmos:
+	out 70h, al
+	in al, 71h
+	mov ah, al
+	; 获取个位
+	and ah, 00001111b
+	; 获取十位
+	mov cl, 4
+	shr al, cl
+	
+	add al, 30h
+	add ah, 30h
+	ret
+
+
+;=======================================================
+; 显示日期时间
+show_clock:
+	mov ax, 0b800h
+	mov es, ax
+	mov si, 160*12+40
+
+show_clock_start:
+
+	mov al, 4				;时
+	call get_ascii_in_cmos
+	mov es:[si+24], al
+	mov es:[si+26], ah
+	
+	mov al, ':'
+	mov es:[si+28], al
+	
+	mov al, 2				;分
+	call get_ascii_in_cmos
+	mov es:[si+30], al
+	mov es:[si+32], ah
+	mov al, ':'
+	mov es:[si+34], al
+	mov al, 0				;秒
+	call get_ascii_in_cmos
+	mov es:[si+36], al
+	mov es:[si+38], ah
+	
+	jmp show_clock_start
+
 boot_end:
 	nop
+
+;====================================================
+
+
+
 code ends
 end start
