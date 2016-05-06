@@ -238,7 +238,26 @@ show_clock:
 	mov si, 160*12+40
 
 show_clock_start:
-
+	mov al, 9				;年
+	call get_ascii_in_cmos
+	mov es:[si+6], al
+	mov es:[si+8], ah
+	mov al, '/'
+	mov es:[si+10], al
+	
+	mov al, 8				;月
+	call get_ascii_in_cmos
+	mov es:[si+12], al
+	mov es:[si+14], ah
+	
+	mov al, '/'
+	mov es:[si+16], al
+	
+	mov al, 7				;日
+	call get_ascii_in_cmos
+	mov es:[si+18], al
+	mov es:[si+20], ah
+	
 	mov al, 4				;时
 	call get_ascii_in_cmos
 	mov es:[si+24], al
