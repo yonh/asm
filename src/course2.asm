@@ -57,6 +57,9 @@ boot_option:
 				 dw  option_3 -  boot+200h
 				 dw  option_4 -  boot+200h
 	current 	 db 0						; 当前选项
+	time_cmos	 db 9, 8, 7, 4, 2, 0
+	time_text	 db 'yy/mm/dd 00:00:00',0
+
 boot_start:
 	call show_option
 	call press_key
@@ -216,6 +219,7 @@ set_clock:
 ;;; 参数: al,读取数据的单元地址
 ;;; 返回al,读取到的数据
 get_ascii_in_cmos:
+	push cx
 	out 70h, al
 	in al, 71h
 	mov ah, al
@@ -227,9 +231,34 @@ get_ascii_in_cmos:
 	
 	add al, 30h
 	add ah, 30h
+	pop cx
 	ret
 
 
+;=======================================================
+; 显示字符串, ds:si字符串首地址,0为结束, di指向字符串位置,0b800:di指向字符串输出地址
+show_str:
+	push es
+	push bx
+	push si
+	push di
+	mov bx, 0b800h
+	mov es, bx
+
+l_show_str:
+	cmp byte ptr ds:[si], 0
+	je show_str_ret
+	mov bl, ds:[si]
+	mov es:[di], bl
+	inc si
+	add di, 2
+	jmp l_show_str
+show_str_ret:
+	pop di
+	pop si
+	pop bx
+	pop es
+	ret
 ;=======================================================
 ; 显示日期时间
 show_clock:
@@ -238,44 +267,37 @@ show_clock:
 	mov si, 160*12+40
 
 show_clock_start:
-	mov al, 9				;年
-	call get_ascii_in_cmos
-	mov es:[si+6], al
-	mov es:[si+8], ah
-	mov al, '/'
-	mov es:[si+10], al
+	push di
+	push ax
+	push ds
+	push si
 	
-	mov al, 8				;月
+	mov cx, 6
+	mov di, 0
+	mov si, 0
+l_get_time_str:
+	; 从cmos获取时间,并填充入time_text
+	mov bx, offset time_cmos - boot + 200h
+	mov al, byte ptr cs:[bx+di]
 	call get_ascii_in_cmos
-	mov es:[si+12], al
-	mov es:[si+14], ah
+	mov bx, offset time_text - boot + 200h
+	mov byte ptr cs:[bx+si], al
+	mov byte ptr cs:[bx+si+1], ah
 	
-	mov al, '/'
-	mov es:[si+16], al
+	inc di
+	add si, 3
+	loop l_get_time_str
 	
-	mov al, 7				;日
-	call get_ascii_in_cmos
-	mov es:[si+18], al
-	mov es:[si+20], ah
+	mov ax, cs
+	mov ds, ax
+	mov si, offset time_text - boot + 200h
+	mov di, 160*12+40
+	call show_str
 	
-	mov al, 4				;时
-	call get_ascii_in_cmos
-	mov es:[si+24], al
-	mov es:[si+26], ah
-	
-	mov al, ':'
-	mov es:[si+28], al
-	
-	mov al, 2				;分
-	call get_ascii_in_cmos
-	mov es:[si+30], al
-	mov es:[si+32], ah
-	mov al, ':'
-	mov es:[si+34], al
-	mov al, 0				;秒
-	call get_ascii_in_cmos
-	mov es:[si+36], al
-	mov es:[si+38], ah
+	pop si
+	pop ds
+	pop ax
+	pop di
 	
 	jmp show_clock_start
 
