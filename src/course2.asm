@@ -59,6 +59,7 @@ boot_option:
 	current 	 db 0						; 当前选项
 	time_cmos	 db 9, 8, 7, 4, 2, 0
 	time_text	 db 'yy/mm/dd 00:00:00',0
+	int9addr	dw 0,0						; int9中断段地址偏移地址
 
 boot_start:
 	call show_option
@@ -202,16 +203,12 @@ reboot:
 start_system:
 
 clock:
-	
-
 	; 清屏
 	mov ax, 3
 	int 10H
 	
 	call show_clock
 	
-
-
 	
 set_clock:
 
@@ -262,15 +259,34 @@ show_str_ret:
 ;=======================================================
 ; 显示日期时间
 show_clock:
-	mov ax, 0b800h
-	mov es, ax
-	mov si, 160*12+40
-
-show_clock_start:
 	push di
 	push ax
 	push ds
 	push si
+	push bx
+	
+	; 备份旧的int9中断地址
+	mov bx, 0
+	mov es, bx
+	push es:[9*4]
+	mov bx, offset int9addr - offset boot + 200h
+	pop cs:[bx]
+	push es:[9*4+2]
+	pop cs:[bx+2]
+	; 写入新的int9中断地址到中断向量表
+	cli
+	mov word ptr es:[9*4], offset new_int9 - offset boot + 200h
+	mov word ptr es:[9*4+2], 0
+	;mov bx, offset int9addr - offset boot+200
+	;mov word ptr es:[9*4], bx
+	;mov word ptr es:[9*4+2], offset int9addr - offset boot+202
+	sti
+	
+show_clock_start:
+	
+	mov ax, 0b800h
+	mov es, ax
+	mov si, 160*12+40
 	
 	mov cx, 6
 	mov di, 0
@@ -294,12 +310,27 @@ l_get_time_str:
 	mov di, 160*12+40
 	call show_str
 	
+	jmp show_clock_start
+
+show_clock_ret:
+	pop bx
 	pop si
 	pop ds
 	pop ax
 	pop di
+	ret
+
+;================================================
+new_int9:
+	mov ax, 0b800h
+	mov es, ax
+	mov si, 160*12
+	mov al, 'h'
+	mov es:[si], al
 	
-	jmp show_clock_start
+new_int9ret:
+	iret
+	
 
 boot_end:
 	nop
