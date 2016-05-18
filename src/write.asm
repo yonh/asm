@@ -71,15 +71,15 @@ print_curr_csip_start:
 	
 	;CS:IP转换为16进制
 	;获取cs:ip
-	mov bx, sp
-	add bx, 10
-	mov bp, bx
+	mov cx, sp
+	add cx, 10
+	mov bp, cx
 	;push [bp]	; push ip
 	;push ax		; push cs
 	;pop ax
 	
-
-	mov bx, [bp]
+	; ax 段地址
+	mov bx, [bp]	;偏移地址
 	call set_csip
 	
 	
@@ -140,30 +140,30 @@ print_curr_csip_ret:
 	ret
 
 set_csip:
-	;push cx
+	push cx
 	push ax
 	;push bx
 	
+	mov cx, ax
 	
 	; 段地址
 	mov ah, 5
-	call set_csip_byte
+	call set_csip_byte	; set al
 	mov ah, 3
 	mov al, ch
-	call set_csip_byte
+	call set_csip_byte	; set ah
 	mov ax, bx
 	; 偏移地址
-	mov cx, ax
 	mov ah, 10
-	call set_csip_byte
+	call set_csip_byte	; set bl
 	mov ah, 8
-	mov al, ch
-	call set_csip_byte
+	mov al, bh
+	call set_csip_byte	; set bh
 	
 	
 	;pop bx
 	pop ax
-	;pop cx
+	pop cx
 	ret
 ;;=======================================
 ;; 将8位寄存器转为16进制并保存到log_str
