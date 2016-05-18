@@ -74,16 +74,14 @@ print_curr_csip_start:
 	mov bx, sp
 	add bx, 10
 	mov bp, bx
-	push [bp]	; push ip
-	push ax		; push cs
-	pop ax
+	;push [bp]	; push ip
+	;push ax		; push cs
+	;pop ax
 	
-	call set_csip_byte
+
+	mov bx, [bp]
+	call set_csip
 	
-	
-	
-	;mov byte ptr log_str[5], 30h
-	pop ax
 	
 	
 	
@@ -140,65 +138,68 @@ print_curr_csip_ret:
 	pop bx
 	pop ax
 	ret
+
+set_csip:
+	;push cx
+	push ax
+	;push bx
 	
+	
+	; 段地址
+	mov ah, 5
+	call set_csip_byte
+	mov ah, 3
+	mov al, ch
+	call set_csip_byte
+	mov ax, bx
+	; 偏移地址
+	mov cx, ax
+	mov ah, 10
+	call set_csip_byte
+	mov ah, 8
+	mov al, ch
+	call set_csip_byte
+	
+	
+	;pop bx
+	pop ax
+	;pop cx
+	ret
 ;;=======================================
 ;; 将8位寄存器转为16进制并保存到log_str
-;; 参数: ax
+;; 参数: al 字符, ah, 位置
 set_csip_byte:
 	push ax
 	push bx
+	push cx
+	
+	mov bx, 0
+	mov ch, ah		;保存位置
+	mov cl, al		;保存字符
 	
 	; al低位
-	push ax
 	and al, 00001111b
-	mov bx, 0
 	mov bl, al
 	mov al, alphabet[bx]
-	mov byte ptr log_str[5], al
-	pop ax
+	mov bl, ch
+	mov byte ptr log_str[bx], al
 	
 	; al高位
-	push ax
+	mov al, cl
 	shr al, 1
 	shr al, 1
 	shr al, 1
 	shr al, 1
-	mov bx, 0
 	mov bl, al
 	mov al, alphabet[bx]
-	mov byte ptr log_str[4], al
-	pop ax
+	mov bl, ch
+	mov byte ptr log_str[bx-1], al
 	
-	; ah低位
-	push ax
-	and ah, 00001111b
-	mov bx, 0
-	mov bl, ah
-	mov ah, alphabet[bx]
-	mov byte ptr log_str[3], ah
-	pop ax
 	
-	; ah高位
-	push ax
-	shr ah, 1
-	shr ah, 1
-	shr ah, 1
-	shr ah, 1
-	mov bx, 0
-	mov bl, ah
-	mov ah, alphabet[bx]
-	mov byte ptr log_str[2], ah
-	pop ax
-	
+	pop cx
 	pop bx
 	pop ax
 	ret
-
-	
-	
-	
-	
-	
 	
 code ends
 end start
