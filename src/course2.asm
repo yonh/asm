@@ -62,6 +62,7 @@ boot_option:
 	int9addr	dw 0,0						; int9中断段地址偏移地址
 
 boot_start:
+	call show_clock
 	call show_option
 	call press_key
 	;s:nop
@@ -154,8 +155,8 @@ press_key:
 	jmp press_key_ret
 
 is_esc:
-	mov ax, 4c00h
-	int 21h
+	;mov ax, 4c00h
+	;int 21h
 is_enter:
 	cmp byte ptr cs:[bx], 0
 	je reboot
@@ -322,12 +323,26 @@ show_clock_ret:
 
 ;================================================
 new_int9:
+	push ax
+	push es
+	push si
+	push bx
+	
 	mov ax, 0b800h
 	mov es, ax
 	mov si, 160*12
-	mov al, 'h'
-	mov es:[si], al
+	inc byte ptr es:[si]
 	
+	
+	;调用原来的int9
+	mov bx, offset new_int9 - offset boot + 200h
+	in al, 60h
+	;pushf		; 将flag压栈
+	;call dword ptr cs:[bx]
+	pop bx
+	pop si
+	pop es
+	pop ax
 new_int9ret:
 	iret
 	
