@@ -5,8 +5,12 @@
 
 assume cs:code
 
+include debug.asm
+
+
 code segment
 start:
+
 	call copy_boot
 	mov bx, 0
 	push bx			;push cs
@@ -24,6 +28,12 @@ copy_boot:
 	push ds
 	push di
 	push si
+	
+	
+	; 写入call_log_addr地址
+	;offset
+	
+	
 	
 	; ds:si => es:di
 	mov ax, cs
@@ -60,8 +70,15 @@ boot_option:
 	time_cmos	 db 9, 8, 7, 4, 2, 0
 	time_text	 db 'yy/mm/dd 00:00:00',0
 	int9addr	dw 0,0						; int9中断段地址偏移地址
+	call_log_addr dw offset print_reg_value, seg print_reg_value
 
 boot_start:
+	; 测试调用打印log子程序程序
+	mov bl, '0'
+	mov bh, '1'
+	mov bp, offset call_log_addr- offset boot+200h
+	call dword ptr cs:[bp]
+
 	call show_clock
 	call show_option
 	call press_key
